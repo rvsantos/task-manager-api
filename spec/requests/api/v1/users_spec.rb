@@ -6,7 +6,7 @@ describe 'Users API', type: :request do
   let(:headers) do
      {
        Accept: 'application/vnd.taskmanager.v1',
-      'Content-Type': 'application/json'
+      'Content-Type': Mime[:json].to_s
       }
   end
 
@@ -19,7 +19,6 @@ describe 'Users API', type: :request do
 
     context 'when the user exists' do
       it 'return the user' do
-        json_body = JSON.parse(response.body, symbolize_names: true)
         expect(json_body[:id]).to eq(user_id)
       end
 
@@ -49,7 +48,6 @@ describe 'Users API', type: :request do
       end
 
       it 'returns json data for the created user' do
-        json_body = JSON.parse(response.body, symbolize_names: true)
         expect(json_body[:email]).to eq(user_params[:email])
       end
     end
@@ -62,9 +60,50 @@ describe 'Users API', type: :request do
       end
 
       it 'returns the json data for the errors' do
-        json_body = JSON.parse(response.body, symbolize_names: true)
         expect(json_body).to have_key(:errors)
       end
+    end
+  end
+
+  describe 'PUT /userd/:id' do
+    before do
+      put "/users/#{user_id}", params: { user: user_params }.to_json, headers: headers
+    end
+
+    context 'when the request are valid' do
+      let(:user_params) {{ email: 'user@example.com' }}
+
+      it 'return status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'return the json data for the updated user' do
+        expect(json_body[:email]).to eq(user_params[:email])
+      end
+    end
+
+    context 'when the request are invalid' do
+      let(:user_params) {{ email: 'invalid_email@' }}
+
+      it 'returns status code 422' do
+        expect(response).to have_http_status(422)
+      end
+
+      it 'returns the json data for the errors' do
+        expect(json_body).to have_key(:errors)
+      end
+    end
+  end
+
+  describe 'DELETE /users/:id' do
+    before { delete "/users/#{user_id}", params: {}, headers: headers }
+
+    it 'return status code 204' do
+      expect(response).to have_http_status(204)
+    end
+
+    it 'removes the user from database' do
+      expect(User.find_by(id: user_id)).to be_nil
     end
   end
 end

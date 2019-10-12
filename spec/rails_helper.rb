@@ -50,6 +50,9 @@ RSpec.configure do |config|
   # factory_bot_rails
   config.include FactoryBot::Syntax::Methods
 
+  # RequestSpecHelper
+  config.include RequestSpecHelper, type: :request
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
