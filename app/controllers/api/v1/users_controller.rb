@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :find_user, only: %i[destroy show update]
+  before_action :find_user, only: [:destroy, :show, :update]
   respond_to :json
 
   def create
