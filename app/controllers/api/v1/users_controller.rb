@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :find_user, only: [:destroy, :show, :update]
+  before_action :authenticate_with_token!, only: [:update, :destroy]
   respond_to :json
 
   def create
@@ -12,6 +12,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def update
+    @user = current_user
     if @user.update(user_params)
       render json: @user, status: :ok
     else
@@ -20,11 +21,14 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def show
+    @user = User.find(params[:id])
     respond_with(@user)
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 
   def destroy
-    @user.destroy
+    current_user.destroy
     head 204
   end
 
@@ -32,11 +36,5 @@ class Api::V1::UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:email, :password, :password_confirmation)
-  end
-
-  def find_user
-    @user = User.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    head 404
   end
 end

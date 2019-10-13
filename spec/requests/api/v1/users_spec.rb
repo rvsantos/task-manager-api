@@ -4,10 +4,11 @@ describe 'Users API', type: :request do
   let!(:user) { create(:user) }
   let(:user_id) { user.id }
   let(:headers) do
-     {
-       Accept: 'application/vnd.taskmanager.v1',
-      'Content-Type': Mime[:json].to_s
-      }
+    {
+      Accept: 'application/vnd.taskmanager.v1',
+      'Content-Type': Mime[:json].to_s,
+      Authorization: user.auth_token
+    }
   end
 
   before { host! 'api.taskmanager.test' }
@@ -37,7 +38,7 @@ describe 'Users API', type: :request do
 
   describe 'POST /users' do
     before do
-      post '/users', params: { user: user_params }.to_json , headers: headers
+      post '/users', params: { user: user_params }.to_json, headers: headers
     end
 
     context 'when the request params are valid' do
@@ -71,7 +72,7 @@ describe 'Users API', type: :request do
     end
 
     context 'when the request are valid' do
-      let(:user_params) {{ email: 'user@example.com' }}
+      let(:user_params) { { email: 'user@example.com' } }
 
       it 'return status code 200' do
         expect(response).to have_http_status(200)
@@ -83,7 +84,7 @@ describe 'Users API', type: :request do
     end
 
     context 'when the request are invalid' do
-      let(:user_params) {{ email: 'invalid_email@' }}
+      let(:user_params) { { email: 'invalid_email@' } }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
